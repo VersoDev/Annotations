@@ -2,14 +2,14 @@
 
 namespace Annotations;
 
-use ReflectionClass;
-use ReflectionException;
-use function Sodium\add;
-
 class AnnotationsParser
 {
+    /**
+     * @var array
+     */
     private static array $ignoredAnnotations = [
-        "param"
+        'param',
+        'package'
     ];
 
     /**
@@ -27,27 +27,45 @@ class AnnotationsParser
     }
 
     /**
-     * @param string $annotation
      * @return array
-     * @throws ReflectionException
      */
-    public function parse(string $annotation = ''): array
+    public function parseAnnotations(): array
     {
-        //$name = empty($annotation) ? '.+' : addslashes($annotation) . '|' . (new ReflectionClass($annotation))->getShortName();
+        $ws = '[\s ]*'; // Whitespace sequence
+        preg_match_all("#@([a-zA-Z\\\\]+){$ws}(?:\((.+)?\))?#", $this->docComment, $matchedAnnotations, PREG_SET_ORDER);
 
-        preg_match_all("#@(.+) *\((.+)\)#", $this->docComment, $data);
+        // Keep only not ignored annotations
+        $matchedAnnotations = array_filter($matchedAnnotations, function ($matchedAnnotation) {
+            return !(in_array($matchedAnnotation[1], self::$ignoredAnnotations));
+        });
 
         $annotations = [];
+        foreach ($matchedAnnotations as $matchedAnnotation) {
+            $args = [];
 
-        foreach ($data[1] as $key => $name) {
-            $annotations[$name] = explode(",", str_replace(" ", "", $data[2][$key]));
+            if (isset($matchedAnnotation[2])) {
+                // If the annotation contains args, then parse them
+                foreach (explode(',', $matchedAnnotation[2]) as $arg) {
+                    preg_match("#(\w+){$ws}={$ws}(.+)#", $arg, $matchedArg);
+                    // Parse it using json
+                    $value = json_decode($matchedArg[2]);
+
+                    $args[$matchedArg[1]] = $value ?? $matchedArg[2];
+                }
+            }
+
+            $annotations[$matchedAnnotation[1]] = $args;
         }
 
         return $annotations;
     }
 
-    public function hasAnnotation(string $annotation): bool
+    /**
+     * @param string $annotation
+     * @return bool
+     */
+    public function isMarkedWith(string $annotation): bool
     {
-        return preg_match("#@$annotation#", $this->docComment);
+        return preg_match("#@{$annotation}#", $this->docComment);
     }
 }
