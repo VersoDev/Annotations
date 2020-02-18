@@ -2,20 +2,20 @@
 
 namespace Tests;
 
-use Annotations\Entities\AnnotatedClass;
-use Annotations\Entities\AnnotatedMethod;
+use Annotations\AnnotationReader;
 use ReflectionClass;
-use ReflectionMethod;
 
 class AnnotationsTest
 {
     public function test()
     {
-        $method = new ReflectionMethod(Service::class, "testServ");
-        $amethod = new AnnotatedMethod($method);
+        $reader = new AnnotationReader();
+        $annots = $reader->getClassAnnotations(new ReflectionClass(Service::class));
 
-        $amethod->getAnnotations();
+        echo '<pre>';
+        var_dump($annots);
+        echo '</pre>';
 
-        //var_dump($amethod->getAnnotations());
+        //$reader->getClassAnnotations(new ReflectionClass(Service::class));
     }
 }
