@@ -6,10 +6,13 @@ class AnnotationsParser
 {
     /**
      * @var array
+     * @todo Complete the list
      */
     private static array $ignoredAnnotations = [
+        'Annotation',
         'param',
-        'package'
+        'package',
+        'var'
     ];
 
     /**
@@ -45,12 +48,27 @@ class AnnotationsParser
 
             if (isset($matchedAnnotation[2])) {
                 // If the annotation contains args, then parse them
-                foreach (explode(',', $matchedAnnotation[2]) as $arg) {
-                    preg_match("#(\w+){$ws}={$ws}(.+)#", $arg, $matchedArg);
-                    // Parse it using json
-                    $value = json_decode($matchedArg[2]);
+                var_dump($matchedAnnotation[2]);
+                echo '<br>';
+                $openingChars = "\"'\[{";
+                $closingChars = "\"'\]}";
+                $explodedArgs = preg_split("/[^{$openingChars}],{$ws}(\d+|[a-z]+[^{$closingChars}]|[{$openingChars}])/", $matchedAnnotation[2]);
+                //$explodedArgs = preg_split("#,(?=(?:[^{$openingChars}]*{$closingChars}[^{$openingChars}]*{$closingChars})*[^{$closingChars}]*$)#", $matchedAnnotation[2]);
 
-                    $args[$matchedArg[1]] = $value ?? $matchedArg[2];
+                echo '<pre>';
+                var_dump($explodedArgs);
+                echo '</pre>';
+
+                foreach ($explodedArgs as $arg) {
+                    preg_match("#(\w+){$ws}={$ws}(.+)#", $arg, $matchedArg);
+
+                    // Parse it using json
+                    if (isset($matchedArg[2])) {
+                        $args[$matchedArg[1]] = json_decode($matchedArg[2]);
+                    } else {
+                        // On autorise la syntaxe simplifiée si il n'y a qu'un seul argument
+                        $args[] = json_decode($explodedArgs[0]);
+                    }
                 }
             }
 

@@ -1,0 +1,2 @@
+- Gérer les annotations Target, Required et autres
+- Cleanup code + gestion erreurs

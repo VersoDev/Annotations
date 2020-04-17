@@ -10,7 +10,10 @@ class AnnotationsTest
     public function test()
     {
         $reader = new AnnotationReader();
-        $annots = $reader->getClassAnnotations(new ReflectionClass(Service::class));
+        try {
+            $annots = $reader->getClassAnnotations(new ReflectionClass(Service::class));
+        } catch (\ReflectionException $e) {
+        }
 
         echo '<pre>';
         var_dump($annots);

@@ -1,0 +1,4 @@
+On veut pouvoir faire un :
+if (isset($annotation->value))
+
+avec value = élément marqué par Required
