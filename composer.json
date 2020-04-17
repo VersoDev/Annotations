@@ -1,0 +1,20 @@
+{
+    "name": "verso/annotations",
+    "description": "A simple annotation system made for Verso.",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Choukas69",
+            "email": "juan.vlroo@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Annotations\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "require": {
+      "ext-json": "*"
+    }
+}
